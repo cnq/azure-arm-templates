@@ -1,0 +1,65 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmNamePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "VM naming convention is c{CLUSTER_INDEX}-vm{VM_INDEX}.  Provide the prefix including the cluster index (i.e. c0-vm)" 
+      }
+    },
+    "numberOfVMs": {
+      "type": "int",
+      "metadata": {
+        "description": "The number of VMs in the target cluster" 
+      }
+    },
+    "nginxConfigRepo": {
+      "type": "string",
+      "metadata": {
+        "description": "The git repository to deploy nginx config from" 
+      }
+    },
+    "branch": {
+      "type": "string",
+      "metadata": {
+        "description": "The repository branch to use" 
+      }
+    },
+    "initializationScriptLocation": {
+      "type": "string",
+      "metadata": {
+        "description": "The link to the raw initialization script (i.e. https://raw.githubusercontent.com/cnq/routingserver-config/master/init.sh)" 
+      }
+    },
+    "executionId": {
+      "type": "string",
+      "metadata": {
+        "description": "Unique Id for each individual deploy" 
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(parameters('vmNamePrefix'), copyIndex(), '/installnginx')]",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "foreach",
+        "count": "[parameters('numberOfVMs')]"
+      },
+      "properties": {
+        "publisher": "Microsoft.OSTCExtensions",
+        "type": "CustomScriptForLinux",
+        "typeHandlerVersion": "1.3",
+        "settings": {
+          "fileUris": [
+            "[parameters('initializationScriptLocation')]"
+          ],
+          "commandToExecute": "[concat('bash init.sh', ' ', parameters('nginxConfigRepo'), ' ', parameters('branch'), ' ',parameters('executionId'))]"
+        }
+      }
+    }
+  ]
+}
