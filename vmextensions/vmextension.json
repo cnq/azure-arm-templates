@@ -32,6 +32,12 @@
         "description": "The link to the raw initialization script (i.e. https://raw.githubusercontent.com/cnq/routingserver-config/master/init.sh)" 
       }
     },
+    "instrumentationKey": {
+      "type": "string",
+      "metadata": {
+        "description": "Application Insights Instrumentation Key" 
+      }
+    },
     "executionId": {
       "type": "string",
       "metadata": {
@@ -57,7 +63,7 @@
           "fileUris": [
             "[parameters('initializationScriptLocation')]"
           ],
-          "commandToExecute": "[concat('bash init.sh', ' ', parameters('nginxConfigRepo'), ' ', parameters('branch'), ' ',parameters('executionId'))]"
+          "commandToExecute": "[concat('bash init.sh', ' ', parameters('nginxConfigRepo'), ' ', parameters('branch'), ' ',parameters('instrumentationKey'), ' ',parameters('executionId'))]"
         }
       }
     }
